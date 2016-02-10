@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Wait &amp; See</string>
+    <string name="registering_message">Sit back and relax while we connect this application to the SAP Web IDE processes...</string>
+    <string name="token_error_message">An error occurred while either fetching the InstanceID token,
+        sending the fetched token to the server or subscribing to the PubSub topic.</string>
+    <string name="title_activity_notification">notification</string>
+    <string name="welcome_title">SAP Web IDE - Wait &amp; See</string>
+    <string name="welcome_message">You are now connected to the SAP Web IDE. You will receive notifications to your registered processes.</string>
+    <string name="footer_message">© Powered By SAP Hana</string>
+</resources>
