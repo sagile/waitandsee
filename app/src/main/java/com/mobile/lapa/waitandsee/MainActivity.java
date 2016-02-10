@@ -1,12 +1,12 @@
 /**
  * Copyright 2015 Google Inc. All Rights Reserved.
- * <p/>
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +29,15 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
@@ -50,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mRegistrationProgressBar;
     private TextView mTitleTextView;
     private TextView mMessageTextView;
+    private TextView mUserNameEditText;
+    private Button mSubmitButton;
+    private SharedPreferences settings;
+    private String userName;
 
     // TextToSpeech
     private static TextToSpeech textToSpeech;
@@ -77,6 +88,19 @@ public class MainActivity extends AppCompatActivity {
 
         mMessageTextView = (TextView) findViewById(R.id.messageTextView);
         mTitleTextView = (TextView) findViewById(R.id.titleTextView);
+        mUserNameEditText = (EditText) findViewById(R.id.userNameEditText);
+        mSubmitButton = (Button) findViewById(R.id.submitButton);
+
+        mUserNameEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    mSubmitButton.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         if (this.textToSpeech == null) {
             textToSpeech = new TextToSpeech(this.getApplicationContext(),
@@ -91,22 +115,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Bundle b = getIntent().getExtras();
-        if (b == null) {
+        String title = "";
+        String message = "";
+        if (b != null) {
+            title = b.getString("TITLE_KEY");
+            message = b.getString("MESSAGE_KEY");
+        }
+
+        if (title == "" && message == "") { //(b == null) {
             mTitleTextView.setText(getString(R.string.welcome_title));
             mMessageTextView.setText(getString(R.string.welcome_message));
         } else {
-            String title = b.getString("TITLE_KEY");
-            String message = b.getString("MESSAGE_KEY");
             mTitleTextView.setText(title);
             mMessageTextView.setText(message);
-            Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
-            RingtoneManager.getRingtone(this, defaultSoundUri).play();
-            try {
-                Thread.sleep(1300);
-                speakText(title);
-            } catch (InterruptedException e) {
-                //e.printStackTrace();
-            }
+            playSound(title);
         }
 
         if (checkPlayServices()) {
@@ -114,6 +136,36 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
         }
+        // ------- User name ------------
+        settings = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
+        userName = settings.getString("USER_NAME", "");
+        if (userName != "") {
+            // user name already set
+            hideUserFields();
+        }
+        setUserTitle();
+    }
+
+    private void setUserTitle() {
+        String activityTitle = getText(R.string.app_name) + " [" + userName + "]";
+        setTitle(activityTitle);
+    }
+
+    private void playSound(String title) {
+//        Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
+//        RingtoneManager.getRingtone(this, defaultSoundUri).play();
+        try {
+            Thread.sleep(1300);
+            speakText(title);
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+        }
+
+    }
+
+    private void hideUserFields() {
+        mUserNameEditText.setVisibility(View.GONE);
+        mSubmitButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -157,5 +209,21 @@ public class MainActivity extends AppCompatActivity {
         } else {
             textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
         }
+    }
+
+    public void submitUserName(View view) {
+        // Set user name
+        userName = mUserNameEditText.getText().toString();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("USER_NAME", userName);
+        editor.commit();
+        hideUserFields();
+
+        Context context = getApplicationContext();
+        CharSequence text = "User name " + userName + " set successfully";
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+        setUserTitle();
     }
 }

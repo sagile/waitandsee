@@ -34,6 +34,36 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/white" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="50dp"
+            android:layout_above="@+id/footerImageView"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/userNameEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:lines="1"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/white"
+                android:textColorHint="@color/sap_light_gray"
+                android:hint="@string/user_name_hint" />
+            <Button
+                android:id="@+id/submitButton"
+                android:onClick="submitUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/user_name_button_text"
+                android:layout_marginLeft="30dp"
+                android:textColor="@color/white"
+                android:background="@drawable/buttonstyle"/>
+        </LinearLayout>
+
         <ProgressBar
             android:id="@+id/registrationProgressBar"
             android:layout_width="wrap_content"
@@ -72,9 +102,9 @@
             android:id="@+id/dexlogoImageView"
             android:layout_width="60dp"
             android:layout_height="30dp"
-            android:src="@drawable/devx_logo"
+            android:layout_gravity="right"
             android:layout_marginLeft="40dp"
-            android:layout_gravity="right" />
+            android:src="@drawable/devx_logo" />
 
     </LinearLayout>
 

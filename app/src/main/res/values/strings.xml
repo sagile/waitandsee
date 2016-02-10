@@ -7,4 +7,8 @@
     <string name="welcome_title">SAP Web IDE - Wait &amp; See</string>
     <string name="welcome_message">You are now connected to the SAP Web IDE. You will receive notifications to your registered processes.</string>
     <string name="footer_message">© Powered By SAP DevX</string>
+    <string name="user_name_hint">Set user name</string>
+    <string name="user_name_button_text">Set User</string>
+
+
 </resources>
