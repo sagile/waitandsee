@@ -25,15 +25,16 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -49,13 +50,16 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mRegistrationProgressBar;
     private TextView mTitleTextView;
     private TextView mMessageTextView;
-//    private ImageView mMainImageView;
+
+    // TextToSpeech
+    private static TextToSpeech textToSpeech;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //thisActivity = this;
+
         mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -65,17 +69,26 @@ public class MainActivity extends AppCompatActivity {
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                   // mMessageTextView.setText(getString(R.string.welcome_message));
-                } else {
+                if (!sentToken) {
                     mMessageTextView.setText(getString(R.string.token_error_message));
                 }
             }
         };
+
         mMessageTextView = (TextView) findViewById(R.id.messageTextView);
         mTitleTextView = (TextView) findViewById(R.id.titleTextView);
-//        mMainImageView = (ImageView) findViewById(R.id.footerImageView);
-//        mMainImageView.setBackgroundResource(R.mipmap.work09);
+
+        if (this.textToSpeech == null) {
+            textToSpeech = new TextToSpeech(this.getApplicationContext(),
+                    new TextToSpeech.OnInitListener() {
+                        @Override
+                        public void onInit(int status) {
+                            if (status != TextToSpeech.ERROR) {
+                                textToSpeech.setLanguage(Locale.ENGLISH); //getDefault());
+                            }
+                        }
+                    });
+        }
 
         Bundle b = getIntent().getExtras();
         if (b == null) {
@@ -88,7 +101,12 @@ public class MainActivity extends AppCompatActivity {
             mMessageTextView.setText(message);
             Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
             RingtoneManager.getRingtone(this, defaultSoundUri).play();
-
+            try {
+                Thread.sleep(1300);
+                speakText(title);
+            } catch (InterruptedException e) {
+                //e.printStackTrace();
+            }
         }
 
         if (checkPlayServices()) {
@@ -103,14 +121,12 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
-        //registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
     }
 
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
-        //unregisterReceiver(mMessageReceiver);
     }
 
     /**
@@ -135,20 +151,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
-  /*  //This is the handler that will manager to process the broadcast intent
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Extract data included in the Intent
-            // String message = intent.getStringExtra("message");
-            String title = intent.getStringExtra("TITLE_KEY");
-            String message = intent.getStringExtra("MESSAGE_KEY");
-            mTitleTextView.setText(title);
-            mMessageTextView.setText(message);
-
-            //do other stuff here
+    private void speakText(String text) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, null);
+        } else {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
         }
-    };*/
-
+    }
 }
