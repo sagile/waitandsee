@@ -1,12 +1,12 @@
 /**
  * Copyright 2015 Google Inc. All Rights Reserved.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -78,6 +80,21 @@ public class MyGcmListenerService extends com.google.android.gms.gcm.GcmListener
      * @param message GCM message received.
      */
     private void sendNotification(String title, String message) {
+
+        // This function will create an intent. This intent must take as parameter the "unique_name" that you registered your activity with
+        Intent intentRecieveer = new Intent("unique_name");
+
+        intentRecieveer.putExtra("TITLE_KEY", title);
+        intentRecieveer.putExtra("MESSAGE_KEY", message);
+
+        //send broadcast
+        sendBroadcast(intentRecieveer);
+
+
+
+
+
+
         Intent intent = new Intent(this, MainActivity.class);
 
         intent.putExtra("TITLE_KEY", title);
@@ -87,11 +104,15 @@ public class MyGcmListenerService extends com.google.android.gms.gcm.GcmListener
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.sap_logo); //new Bitmap(R.drawable.sap_logo);
+
+//        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
 
         Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName()+"/" + R.raw.game_finished);
         //Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.devx_logo_notification)
+//                .setSmallIcon(R.drawable.sap_logo)
+                .setLargeIcon(icon)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
