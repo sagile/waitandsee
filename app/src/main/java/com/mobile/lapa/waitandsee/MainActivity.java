@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    private AppCompatActivity thisActivity;
+    //private AppCompatActivity thisActivity;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
 
@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mRegistrationProgressBar;
     private TextView mTitleTextView;
     private TextView mMessageTextView;
-    private ImageView mMainImageView;
+//    private ImageView mMainImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        thisActivity = this;
+        //thisActivity = this;
         mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean sentToken = sharedPreferences
                         .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
                 if (sentToken) {
-                    mMessageTextView.setText(getString(R.string.welcome_message));
+                   // mMessageTextView.setText(getString(R.string.welcome_message));
                 } else {
                     mMessageTextView.setText(getString(R.string.token_error_message));
                 }
@@ -74,16 +74,21 @@ public class MainActivity extends AppCompatActivity {
         };
         mMessageTextView = (TextView) findViewById(R.id.messageTextView);
         mTitleTextView = (TextView) findViewById(R.id.titleTextView);
-        mMainImageView = (ImageView) findViewById(R.id.footerImageView);
-        mMainImageView.setBackgroundResource(R.mipmap.work09);
-        if (savedInstanceState == null) {
+//        mMainImageView = (ImageView) findViewById(R.id.footerImageView);
+//        mMainImageView.setBackgroundResource(R.mipmap.work09);
+
+        Bundle b = getIntent().getExtras();
+        if (b == null) {
             mTitleTextView.setText(getString(R.string.welcome_title));
             mMessageTextView.setText(getString(R.string.welcome_message));
         } else {
-            String title = savedInstanceState.getString("TITLE_KEY");
-            String message = savedInstanceState.getString("MESSAGE_KEY");
+            String title = b.getString("TITLE_KEY");
+            String message = b.getString("MESSAGE_KEY");
             mTitleTextView.setText(title);
             mMessageTextView.setText(message);
+            Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
+            RingtoneManager.getRingtone(this, defaultSoundUri).play();
+
         }
 
         if (checkPlayServices()) {
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
-        registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
+        //registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
     }
 
     @Override
@@ -113,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
      */
+
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
@@ -130,15 +136,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //This is the handler that will manager to process the broadcast intent
+  /*  //This is the handler that will manager to process the broadcast intent
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-//            Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
-//            RingtoneManager.getRingtone(thisActivity, defaultSoundUri).play();
-
-
             // Extract data included in the Intent
             // String message = intent.getStringExtra("message");
             String title = intent.getStringExtra("TITLE_KEY");
@@ -148,6 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
             //do other stuff here
         }
-    };
+    };*/
 
 }

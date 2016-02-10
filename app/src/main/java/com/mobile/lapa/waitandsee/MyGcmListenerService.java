@@ -16,14 +16,17 @@
 
 package com.mobile.lapa.waitandsee;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -81,6 +84,11 @@ public class MyGcmListenerService extends com.google.android.gms.gcm.GcmListener
      */
     private void sendNotification(String title, String message) {
 
+        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock mWakeLock = pm.newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "YourServie");
+        mWakeLock.acquire();
+
+      /*  // ------ Update main activity text
         // This function will create an intent. This intent must take as parameter the "unique_name" that you registered your activity with
         Intent intentRecieveer = new Intent("unique_name");
 
@@ -89,39 +97,65 @@ public class MyGcmListenerService extends com.google.android.gms.gcm.GcmListener
 
         //send broadcast
         sendBroadcast(intentRecieveer);
+*/
 
-
-
-
-
-
+        // ------- Send notification to the android system
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         intent.putExtra("TITLE_KEY", title);
         intent.putExtra("MESSAGE_KEY", message);
 
-        //intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.sap_logo); //new Bitmap(R.drawable.sap_logo);
+        startActivity(intent);
+        mWakeLock.release();
 
-//        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
-
-        Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName()+"/" + R.raw.game_finished);
-        //Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+//        //intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0  Request code , intent,
+//                PendingIntent.FLAG_UPDATE_CURRENT);
+//        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.devx_logo); //new Bitmap(R.drawable.sap_logo);
+//
+////        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+//
+//        Uri defaultSoundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.game_finished);
+//        //Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 //                .setSmallIcon(R.drawable.sap_logo)
-                .setLargeIcon(icon)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+//                .setLargeIcon(icon)
+//                .setContentTitle(title)
+//                .setContentText(message)
+//                .setAutoCancel(true)
+//                .setSound(defaultSoundUri)
+//                .setContentIntent(pendingIntent)
+//
+//                .setDefaults(Notification.DEFAULT_ALL) // requires VIBRATE permission;
+//                .setStyle(new NotificationCompat.BigTextStyle()
+//                        .bigText(message))
+//
+//                 ;
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+/*        new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_stat_notification)
+                .setContentTitle(getString(R.string.notification))
+                .setContentText(getString(R.string.ping))
+                .setDefaults(Notification.DEFAULT_ALL) // requires VIBRATE permission
+        *//*
+         * Sets the big view "big text" style and supplies the
+         * text (the user's reminder message) that will be displayed
+         * in the detail area of the expanded notification.
+         * These calls are ignored by the support library for
+         * pre-4.1 devices.
+         *//*
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(msg))
+                .addAction (R.drawable.ic_stat_dismiss,
+                        getString(R.string.dismiss), piDismiss)
+                .addAction (R.drawable.ic_stat_snooze,
+                        getString(R.string.snooze), piSnooze);*/
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+//        NotificationManager notificationManager =
+//                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 }
